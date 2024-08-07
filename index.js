@@ -27,14 +27,15 @@ app.get("/queue/:position", async (req, res) => {
 // Join queue
 app.post("/queue", async (req, res) => {
   try {
-    const { reason, name } = req.body;
+    const { reason, name, phone } = req.body;
 
     // Validate required fields
-    if (!reason || !name) {
+    if (!reason || !name || !phone) {
       return res
         .status(400)
         .json({
-          error: "Both reason and name are required to join the queue.",
+          error:
+            "Reason, name, and phone number are required to join the queue.",
         });
     }
 
@@ -48,6 +49,7 @@ app.post("/queue", async (req, res) => {
       data: {
         reason,
         name,
+        phone,
         position: queueCount + 1,
       },
     });
