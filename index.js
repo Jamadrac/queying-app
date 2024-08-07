@@ -77,27 +77,47 @@ app.get("/queues", async (req, res) => {
   }
 });
 
-// Update customer info
+// Get queue details by ID
+app.get("/queue/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const queue = await prisma.queue.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (queue) {
+      res.json(queue);
+    } else {
+      res.status(404).json({ error: "Queue not found." });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Existing code...
 
 // Get next in queue
-app.get("/next", async (req, res) => {
+// Update queue status
+app.patch("/queue/:id", async (req, res) => {
   try {
-    const nextInQueue = await prisma.queue.findFirst({
-      where: { status: "waiting" },
-      orderBy: { position: "asc" },
+    const { id } = req.params;
+    const { status, attendedBy } = req.body;
+
+    const updatedQueue = await prisma.queue.update({
+      where: { id: parseInt(id) },
+      data: {
+        status,
+        attendedBy, // Optional: Add this field to your model if needed
+      },
     });
-    if (nextInQueue) {
-      await prisma.queue.update({
-        where: { id: nextInQueue.id },
-        data: { status: "serving" },
-      });
-    }
-    res.json(nextInQueue);
+
+    res.json(updatedQueue);
   } catch (error) {
     console.error(error);
     res
       .status(500)
-      .json({ error: "An error occurred while getting the next in queue." });
+      .json({ error: "An error occurred while updating the queue status." });
   }
 });
 

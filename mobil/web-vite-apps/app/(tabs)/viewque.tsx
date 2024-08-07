@@ -7,8 +7,10 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
 } from "react-native";
 import { baseurl } from "../config";
+import { useRouter } from "expo-router";
 
 interface Queue {
   id: number;
@@ -26,6 +28,8 @@ export default function QueueList() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+
+  const router = useRouter();
 
   // Fetch queues data
   const fetchQueues = async () => {
@@ -51,13 +55,19 @@ export default function QueueList() {
     fetchQueues();
   }, []);
 
+  const handlePress = (id: number) => {
+    router.push(`${id}`);
+  };
+
   const renderItem = ({ item }: { item: Queue }) => (
-    <View style={styles.item}>
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.reason}>{item.reason}</Text>
-      <Text style={styles.phone}>{item.phone}</Text>
-      <Text style={styles.position}>Position: {item.position}</Text>
-    </View>
+    <TouchableOpacity onPress={() => handlePress(item.id)}>
+      <View style={styles.item}>
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.reason}>{item.reason}</Text>
+        <Text style={styles.phone}>{item.phone}</Text>
+        <Text style={styles.position}>Position: {item.position}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
   if (loading) {
