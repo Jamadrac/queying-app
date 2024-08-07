@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { baseurl } from "../config";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -10,28 +11,18 @@ export default function Home() {
 
   const joinQueue = async () => {
     try {
-      // First, create or update the customer
-      const customerResponse = await fetch("http://your-backend-url/customer", {
+      // Join the queue with name, phone, and reason
+      const response = await fetch(`${baseurl}/queue`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, phone }),
+        body: JSON.stringify({ name, phone, reason }),
       });
-      const customer = await customerResponse.json();
+      const queue = await response.json();
 
-      // Then, join the queue
-      const queueResponse = await fetch("http://your-backend-url/queue", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ customerId: customer.id, reason }),
-      });
-      const queue = await queueResponse.json();
-
-      // Navigate to the status screen
-      router.push({ pathname: "/status", params: { queueId: queue.id } });
+      // Navigate to the status screen with the queue ID
+      // router.push("/(tabs)")
     } catch (error) {
       console.error("Error joining queue:", error);
     }

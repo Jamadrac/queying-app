@@ -1,12 +1,13 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+const morgan = require("morgan");
 require("dotenv").config();
 
 const prisma = new PrismaClient();
 const app = express();
 
 app.use(express.json());
-
+app.use(morgan("tiny"));
 // Get queue status by position
 app.get("/queue/:position", async (req, res) => {
   try {
@@ -24,19 +25,15 @@ app.get("/queue/:position", async (req, res) => {
 });
 
 // Join queue
-// Join queue
 app.post("/queue", async (req, res) => {
   try {
     const { reason, name, phone } = req.body;
 
     // Validate required fields
     if (!reason || !name || !phone) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Reason, name, and phone number are required to join the queue.",
-        });
+      return res.status(400).json({
+        error: "Reason, name, and phone number are required to join the queue.",
+      });
     }
 
     // Count current number of waiting queues
@@ -64,23 +61,23 @@ app.post("/queue", async (req, res) => {
   }
 });
 
-// Update customer info
-app.put("/customer/:id", async (req, res) => {
+// Get all queues
+app.get("/queues", async (req, res) => {
   try {
-    const { id } = req.params;
-    const { phone, email, name } = req.body;
-    const updatedCustomer = await prisma.customer.update({
-      where: { id: parseInt(id) },
-      data: { phone, email, name },
+    const queues = await prisma.queue.findMany({
+      where: { status: "waiting" },
+      orderBy: { position: "asc" },
     });
-    res.json(updatedCustomer);
+    res.json(queues);
   } catch (error) {
     console.error(error);
     res
       .status(500)
-      .json({ error: "An error occurred while updating customer info." });
+      .json({ error: "An error occurred while fetching the queue." });
   }
 });
+
+// Update customer info
 
 // Get next in queue
 app.get("/next", async (req, res) => {
@@ -104,7 +101,7 @@ app.get("/next", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
