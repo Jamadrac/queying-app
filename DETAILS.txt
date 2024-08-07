@@ -1,0 +1,15 @@
+Allowing customers to use their mobile phone to view real-time queue data and select a reason that 
+they want to visit your service center. Customers are free to carry on their day and don't have to 
+wait in a waiting area for to long. Customers can wait anywhere else while waiting for their turns. 
+They can receive notifications via SMS, App or Emails informing them about there turn and when ready 
+to be seen, they are called forward for service.
+
+revenue..
+add and advertising of the platfornm
+
+featurs 
+The number of people entering the store
+·        Queue length
+·        Average wait time
+·        Till operator or bank teller idle time
+·        Total wait time.
