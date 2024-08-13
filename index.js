@@ -1,13 +1,18 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const morgan = require("morgan");
+const os = require("os");
+const qrcode = require("qrcode");
 require("dotenv").config();
+
+const PORT = process.env.PORT || 9000;
 
 const prisma = new PrismaClient();
 const app = express();
 
 app.use(express.json());
 app.use(morgan("tiny"));
+
 // Get queue status by position
 app.get("/queue/:position", async (req, res) => {
   try {
@@ -95,8 +100,6 @@ app.get("/queue/:id", async (req, res, next) => {
   }
 });
 
-// Existing code...
-
 // Get next in queue
 // Update queue status
 app.patch("/queue/:id", async (req, res) => {
@@ -121,7 +124,30 @@ app.patch("/queue/:id", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  const networkInterfaces = os.networkInterfaces();
+  let ipAddress = "localhost";
+
+  for (const interfaceName in networkInterfaces) {
+    const interfaceInfo = networkInterfaces[interfaceName];
+    for (const address of interfaceInfo) {
+      if (address.family === "IPv4" && !address.internal) {
+        ipAddress = address.address;
+        break;
+      }
+    }
+  }
+
+  const url = `http://${ipAddress}:${PORT}`;
+  console.log(`Server is running at ${url}`);
+
+  // Generate QR code
+  qrcode.toString(url, { type: "terminal" }, (err, qrCode) => {
+    if (err) {
+      console.error("Failed to generate QR code:", err);
+    } else {
+      console.log("Scan the following QR code to access the server:");
+      console.log(qrCode);
+    }
+  });
 });
