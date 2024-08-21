@@ -6,7 +6,8 @@ export const authState = atom({
   default: "ssss",
 });
 
-export const baseUrlAtom = atom({
+
+export const baseUrlAtom = atom<string | null>({
   key: "baseUrlAtom",
-  default: "",
+  default: 'xx', // Default value can be null
 });

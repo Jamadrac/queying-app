@@ -13,6 +13,10 @@ import { RecoilRoot } from "recoil"; // Import RecoilRoot
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+export const unstable_setting ={
+  initialRouteName: "(auth)",
+};
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [fontsLoaded] = useFonts({
@@ -33,7 +37,10 @@ export default function RootLayout() {
     <RecoilRoot>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
+
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        
           <Stack.Screen name="+not-found" />
         </Stack>
       </ThemeProvider>

@@ -13,6 +13,11 @@ const app = express();
 app.use(express.json());
 app.use(morgan("tiny"));
 
+// Root endpoint
+app.get("/", (req, res) => {
+  res.json({ webx: "222223erfgredfhsfnfdhnjtrgfnfdtrj" });
+});
+
 // Get queue status by position
 app.get("/queue/:position", async (req, res) => {
   try {

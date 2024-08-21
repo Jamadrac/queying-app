@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+// screens/Home.tsx
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { baseurl } from "../config";
+import { fetchScannedUrl, url, ClearUrlButton } from "../utils/scannedUrl";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -9,9 +11,13 @@ export default function Home() {
   const [reason, setReason] = useState("");
   const router = useRouter();
 
+  useEffect(() => {
+    fetchScannedUrl(); // Fetch the URL when the component mounts
+  }, []);
+
   const joinQueue = async () => {
     try {
-      // Join the queue with name, phone, and reason
+      // Use the fetched URL to join the queue
       const response = await fetch(`${baseurl}/queue`, {
         method: "POST",
         headers: {
@@ -51,6 +57,13 @@ export default function Home() {
         onChangeText={setReason}
       />
       <Button title="Join Queue" onPress={joinQueue} />
+
+      {url && (
+        <View style={styles.urlContainer}>
+          <Text>Scanned URL: {url}</Text>
+          {/* <ClearUrlButton />  */}
+        </View>
+      )}
     </View>
   );
 }
@@ -74,5 +87,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
+  },
+  urlContainer: {
+    marginTop: 20,
+    alignItems: "center",
   },
 });
