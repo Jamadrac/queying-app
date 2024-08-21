@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as Speech from "expo-speech";
 import { useRecoilValue } from "recoil";
 import { authState } from "../recoil/atoms";
+import { url } from "../utils/scannedUrl";
 
 interface Queue {
   id: number;
@@ -38,9 +39,11 @@ export default function QueueDetail() {
     const fetchQueueDetail = async () => {
       setLoading(true);
       try {
-        const response = await axios.get<Queue>(`${baseurl}/queue/${id}`);
+        const response = await axios.get<Queue>(`${url}/queue/${id}`);
         setQueue(response.data);
+        setError(null); // Clear any previous errors
       } catch (err) {
+        console.error("Error fetching queue detail:", err); // Debugging log
         setError("Failed to fetch queue detail");
       } finally {
         setLoading(false);
@@ -62,6 +65,7 @@ export default function QueueDetail() {
         );
         Alert.alert("Success", "Queue status updated to attended");
       } catch (err) {
+        console.error("Error updating queue status:", err); // Debugging log
         setError("Failed to update queue status");
       }
     }

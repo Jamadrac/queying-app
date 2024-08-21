@@ -3,13 +3,15 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { baseurl } from "../config";
-import { fetchScannedUrl, url, ClearUrlButton } from "../utils/scannedUrl";
+import { fetchScannedUrl, url, } from "../utils/scannedUrl";
+import { useScannedUrl } from "../utils/url";
 
 export default function Home() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [reason, setReason] = useState("");
   const router = useRouter();
+  const url = useScannedUrl();
 
   useEffect(() => {
     fetchScannedUrl(); // Fetch the URL when the component mounts
@@ -18,7 +20,7 @@ export default function Home() {
   const joinQueue = async () => {
     try {
       // Use the fetched URL to join the queue
-      const response = await fetch(`${baseurl}/queue`, {
+      const response = await fetch(`${url}/queue`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +38,9 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
+      
       <Text style={styles.title}>Join Queue</Text>
+       <Text> server Adress {url}</Text>
       <TextInput
         style={styles.input}
         placeholder="Name"
@@ -58,12 +62,7 @@ export default function Home() {
       />
       <Button title="Join Queue" onPress={joinQueue} />
 
-      {url && (
-        <View style={styles.urlContainer}>
-          <Text>Scanned URL: {url}</Text>
-          {/* <ClearUrlButton />  */}
-        </View>
-      )}
+   
     </View>
   );
 }

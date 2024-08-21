@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { baseurl } from "../config";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useScannedUrl } from "../utils/url";
 
 interface Queue {
   id: number;
@@ -28,6 +30,7 @@ export default function QueueList() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const url = useScannedUrl();
 
   const router = useRouter();
 
@@ -35,9 +38,12 @@ export default function QueueList() {
   const fetchQueues = async () => {
     setLoading(true);
     try {
-      const response = await axios.get<Queue[]>(`${baseurl}/queues`);
+      const response = await axios.get<Queue[]>(`${url}/queues`);
+      console.log("Fetched data:", response.data); // Debugging line
       setQueues(response.data);
+      setError(null); // Clear any previous error
     } catch (err) {
+      console.error("Error fetching data:", err);
       setError("Failed to fetch queues");
     } finally {
       setLoading(false);
@@ -49,11 +55,11 @@ export default function QueueList() {
     setRefreshing(true);
     await fetchQueues();
     setRefreshing(false);
-  }, []);
+  }, [url]);
 
   useEffect(() => {
     fetchQueues();
-  }, []);
+  }, [url]);
 
   const handlePress = (id: number) => {
     router.push(`${id}`);
@@ -71,29 +77,45 @@ export default function QueueList() {
   );
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </SafeAreaView>
+    );
   }
 
-  if (error) {
-    return <Text>{error}</Text>;
+  if (error && !queues.length) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <Text>{error}</Text>
+        <Text> Server Address: {url}</Text>
+      </SafeAreaView>
+    );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Queue List</Text>
-      <FlatList
-        data={queues}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
-    </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Queue List</Text>
+        <FlatList
+          data={queues}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    alignContent:"center",
+    justifyContent:"center"
+  },
   container: {
     flex: 1,
     padding: 20,

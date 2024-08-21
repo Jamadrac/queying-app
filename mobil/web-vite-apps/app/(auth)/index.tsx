@@ -36,7 +36,7 @@ export default function QRCodeScannerScreen() {
       await FileSystem.writeAsStringAsync(fileUri, JSON.stringify({ url: scannedData }));
 
       // Navigate to the view URL screen
-      router.push("/view-url");
+      router.push("/(tabs)");
 
       // Optionally, delete the JSON file after navigating
       // await FileSystem.deleteAsync(fileUri);
