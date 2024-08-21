@@ -1,15 +1,16 @@
 // screens/Home.tsx
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator, ToastAndroid } from "react-native";
 import { useRouter } from "expo-router";
-import { baseurl } from "../config";
-import { fetchScannedUrl, url, } from "../utils/scannedUrl";
+import { fetchScannedUrl, url } from "../utils/scannedUrl";
 import { useScannedUrl } from "../utils/url";
 
 export default function Home() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [reason, setReason] = useState("");
+  const [loading, setLoading] = useState(false); // State for loading indicator
+  const [error, setError] = useState(""); // State for error messages
   const router = useRouter();
   const url = useScannedUrl();
 
@@ -18,6 +19,9 @@ export default function Home() {
   }, []);
 
   const joinQueue = async () => {
+    setLoading(true); // Start loading
+    setError(""); // Clear any previous error
+
     try {
       // Use the fetched URL to join the queue
       const response = await fetch(`${url}/queue`, {
@@ -27,20 +31,37 @@ export default function Home() {
         },
         body: JSON.stringify({ name, phone, reason }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to join queue");
+      }
+
       const queue = await response.json();
+
+      // Display success notification
+      ToastAndroid.show("Joined queue successfully!", ToastAndroid.SHORT);
+
+      // Clear input fields
+      setName("");
+      setPhone("");
+      setReason("");
 
       // Navigate to the status screen with the queue ID
       // router.push("/(tabs)")
     } catch (error) {
       console.error("Error joining queue:", error);
+      setError("Error joining queue. Please try again.");
+      // Display error notification
+      ToastAndroid.show("Failed to join queue.", ToastAndroid.SHORT);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   return (
     <View style={styles.container}>
-      
       <Text style={styles.title}>Join Queue</Text>
-       <Text> server Adress {url}</Text>
+      <Text>Server Address: {url}</Text>
       <TextInput
         style={styles.input}
         placeholder="Name"
@@ -60,9 +81,12 @@ export default function Home() {
         value={reason}
         onChangeText={setReason}
       />
-      <Button title="Join Queue" onPress={joinQueue} />
-
-   
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <Button title="Join Queue" onPress={joinQueue} />
+      )}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 }
@@ -87,8 +111,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
   },
-  urlContainer: {
-    marginTop: 20,
-    alignItems: "center",
+  errorText: {
+    color: "red",
+    marginTop: 10,
   },
 });

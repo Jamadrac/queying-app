@@ -39,7 +39,7 @@ export default function QueueList() {
     setLoading(true);
     try {
       const response = await axios.get<Queue[]>(`${url}/queues`);
-      console.log("Fetched data:", response.data); // Debugging line
+     
       setQueues(response.data);
       setError(null); // Clear any previous error
     } catch (err) {
@@ -61,7 +61,7 @@ export default function QueueList() {
     fetchQueues();
   }, [url]);
 
-  const handlePress = (id: number) => {
+  const handlePress = (id:any) => {
     router.push(`${id}`);
   };
 
